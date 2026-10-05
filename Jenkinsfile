@@ -1,7 +1,12 @@
 // Declarative pipeline for Jenkins running on WINDOWS (uses 'bat', not 'sh').
-// Requirements on the Jenkins machine: JDK 21, Maven, Git, Docker Desktop (all on PATH).
+// Requirements on the Jenkins machine: JDK 21, Maven, Git, Docker Desktop.
+
 pipeline {
     agent any
+
+    environment {
+        PATH = "C:\\Program Files\\Apache\\apache-maven-3.9.16\\bin;C:\\Users\\leela\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+    }
 
     options {
         timeout(time: 40, unit: 'MINUTES')
@@ -10,18 +15,21 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'BROWSER',
-               choices: ['all', 'chrome', 'firefox', 'edge'],
-               description: 'Which browser(s) to run on the Selenium Grid')
+        choice(
+            name: 'BROWSER',
+            choices: ['all', 'chrome', 'firefox', 'edge'],
+            description: 'Which browser(s) to run on the Selenium Grid'
+        )
     }
 
-    // Trigger: Jenkins checks GitHub every ~5 minutes and builds when there is a new commit.
-    // You can always start a build manually with "Build with Parameters".
+    // Jenkins checks GitHub approximately every 5 minutes for a new commit.
+    // You can also start a build manually using "Build with Parameters".
     triggers {
         pollSCM('H/5 * * * *')
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -47,7 +55,8 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                // catchError: if tests fail, mark the build FAILED but still publish results and stop the Grid.
+                // If tests fail, mark the build as FAILURE,
+                // but continue to publish results and stop Selenium Grid.
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     script {
                         if (params.BROWSER == 'all') {
@@ -62,18 +71,33 @@ pipeline {
 
         stage('Publish TestNG Results') {
             steps {
-                junit allowEmptyResults: true, testResults: 'target/surefire-reports/TEST-*.xml'
-                archiveArtifacts artifacts: 'target/surefire-reports/**, target/screenshots/**', allowEmptyArchive: true
-                // Print the pass/fail summary lines into the Jenkins console
-                bat(returnStatus: true, script: 'findstr /C:"Tests run:" target\\surefire-reports\\*.txt')
+                junit(
+                    allowEmptyResults: true,
+                    testResults: 'target/surefire-reports/TEST-*.xml'
+                )
+
+                archiveArtifacts(
+                    artifacts: 'target/surefire-reports/**, target/screenshots/**',
+                    allowEmptyArchive: true
+                )
+
+                // Print TestNG pass/fail summary in Jenkins console.
+                bat(
+                    returnStatus: true,
+                    script: 'findstr /C:"Tests run:" target\\surefire-reports\\*.txt'
+                )
             }
         }
     }
 
     post {
         always {
-            // Stop Selenium Grid even when a stage failed
-            bat(returnStatus: true, script: 'docker compose -f docker/docker-compose.yml down')
+            // Stop Selenium Grid even if a previous stage failed.
+            bat(
+                returnStatus: true,
+                script: 'docker compose -f docker/docker-compose.yml down'
+            )
+
             echo "Final build result: ${currentBuild.currentResult}"
         }
     }
