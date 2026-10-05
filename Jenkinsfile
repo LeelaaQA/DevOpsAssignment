@@ -4,9 +4,9 @@
 pipeline {
     agent any
 
-    environment {
-        PATH = "C:\\Program Files\\Apache\\apache-maven-3.9.16\\bin;C:\\Users\\leela\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\leela\\.docker\\cli-plugins;${env.PATH}"
-    }
+environment {
+    PATH = "C:\\Program Files\\Apache\\apache-maven-3.9.16\\bin;C:\\Users\\leela\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+}
 
     options {
         timeout(time: 40, unit: 'MINUTES')
@@ -41,15 +41,15 @@ pipeline {
                 bat 'java -version'
                 bat 'mvn -version'
                 bat 'docker --version'
-                bat 'docker compose version'
+                bat 'docker-compose version'
             }
         }
 
         stage('Start Selenium Grid') {
             steps {
-                bat 'docker compose -f docker/docker-compose.yml up -d'
+                bat 'docker-compose -f docker/docker-compose.yml up -d'
                 bat 'powershell -NoProfile -ExecutionPolicy Bypass -File docker/wait-for-grid.ps1'
-                bat 'docker compose -f docker/docker-compose.yml ps'
+                bat 'docker-compose -f docker/docker-compose.yml ps'
             }
         }
 
@@ -95,7 +95,7 @@ pipeline {
             // Stop Selenium Grid even if a previous stage failed.
             bat(
                 returnStatus: true,
-                script: 'docker compose -f docker/docker-compose.yml down'
+                script: 'docker-compose -f docker/docker-compose.yml down'
             )
 
             echo "Final build result: ${currentBuild.currentResult}"
