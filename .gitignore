@@ -1,0 +1,31 @@
+# Build output (also contains runtime-generated reports and failure screenshots)
+target/
+out/
+test-output/
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+.vscode/
+.metadata/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+grid-logs.txt
+
+# Secrets - never commit these
+.env
+*.pem
+*.key
+*.jks
+credentials*.*
+secrets*.*

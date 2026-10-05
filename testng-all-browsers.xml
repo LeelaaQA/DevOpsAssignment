@@ -1,0 +1,33 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  Runs the SAME tests on Chrome, then Firefox, then Edge (one after another)
+  through the Selenium Grid:
+      mvn clean test -DsuiteXmlFile=testng-all-browsers.xml
+  Do NOT also pass -Dbrowser here, because -Dbrowser would override all three.
+-->
+<suite name="Amazon Cross-Browser Suite" verbose="1">
+
+    <test name="Chrome - Amazon Tests">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="tests.AmazonHomePageTest"/>
+            <class name="tests.AmazonSearchTest"/>
+        </classes>
+    </test>
+
+    <test name="Firefox - Amazon Tests">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="tests.AmazonHomePageTest"/>
+            <class name="tests.AmazonSearchTest"/>
+        </classes>
+    </test>
+
+    <test name="Edge - Amazon Tests">
+        <parameter name="browser" value="edge"/>
+        <classes>
+            <class name="tests.AmazonHomePageTest"/>
+            <class name="tests.AmazonSearchTest"/>
+        </classes>
+    </test>
+</suite>
