@@ -5,7 +5,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "C:\\Program Files\\Apache\\apache-maven-3.9.16\\bin;C:\\Users\\leela\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+        PATH = "C:\\Program Files\\Apache\\apache-maven-3.9.16\\bin;C:\\Users\\leela\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\leela\\.docker\\cli-plugins;${env.PATH}"
     }
 
     options {
